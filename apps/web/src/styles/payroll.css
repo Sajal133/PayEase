@@ -1,0 +1,373 @@
+/* ============================================================================
+   PayEase - Payroll Styles
+   ============================================================================ */
+
+/* Salary Calculator */
+.salary-calculator {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.salary-calculator h2 {
+    margin: 0 0 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.calculator-config {
+    background: var(--gray-50);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+}
+
+.config-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.config-row:last-child {
+    margin-bottom: 0;
+}
+
+.config-item {
+    flex: 1;
+    min-width: 150px;
+}
+
+.config-item label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--gray-700);
+}
+
+.config-item input,
+.config-item select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+}
+
+.config-item.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.config-item.checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.config-item.checkbox input {
+    width: auto;
+}
+
+/* Salary Breakdown */
+.salary-breakdown {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.breakdown-section {
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    background: var(--gray-50);
+}
+
+.breakdown-section h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-500);
+    margin: 0 0 1rem;
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+}
+
+.breakdown-row.total {
+    border-top: 1px solid var(--gray-300);
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    font-weight: 600;
+}
+
+.breakdown-row .deduction {
+    color: var(--danger);
+}
+
+.breakdown-row .contribution {
+    color: var(--primary);
+}
+
+.breakdown-section.net {
+    background: var(--primary);
+    color: white;
+}
+
+.breakdown-row.net-salary {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.breakdown-row.net-salary .amount {
+    font-size: 1.5rem;
+}
+
+.info-note {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: #fef3c7;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: #92400e;
+}
+
+/* Payroll Manager */
+.payroll-manager {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.payroll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.payroll-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* New Payroll Form */
+.new-payroll-form {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+}
+
+.new-payroll-form h3 {
+    margin: 0 0 1rem;
+}
+
+/* Payroll Layout */
+.payroll-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .payroll-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Runs List */
+.runs-list {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1rem;
+}
+
+.runs-list h3 {
+    margin: 0 0 1rem;
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-500);
+}
+
+.run-card {
+    padding: 1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 0.5rem;
+}
+
+.run-card:hover {
+    background: var(--gray-50);
+}
+
+.run-card.selected {
+    background: #eef2ff;
+    border-left: 3px solid var(--primary);
+}
+
+.run-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.run-meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin-bottom: 0.5rem;
+}
+
+.run-amount {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Status Badges */
+.status-draft {
+    background: var(--gray-200);
+    color: var(--gray-700);
+}
+
+.status-processing {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-paid {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Run Details */
+.run-details {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.details-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-actions select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+}
+
+/* Summary Cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.summary-card {
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.summary-card .label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.summary-card .value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.summary-card .value.deduction {
+    color: var(--danger);
+}
+
+.summary-card.highlight {
+    background: var(--primary);
+    color: white;
+}
+
+.summary-card.highlight .label {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Items Table */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.items-table th,
+.items-table td {
+    padding: 0.75rem;
+    text-align: right;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.items-table th {
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    background: var(--gray-50);
+}
+
+.items-table th:first-child,
+.items-table td:first-child {
+    text-align: left;
+}
+
+.items-table .deduction {
+    color: var(--danger);
+}
+
+.items-table .net {
+    font-weight: 600;
+    color: var(--primary);
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payslip - {{month}} {{year}}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Helvetica', Arial, sans-serif; font-size: 12px; color: #333; padding: 20px; }
+    
+    .payslip { max-width: 800px; margin: 0 auto; border: 1px solid #ddd; }
+    
+    .header { background: #4f46e5; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .company-name { font-size: 20px; font-weight: bold; }
+    .payslip-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .info-section { display: flex; padding: 15px 20px; border-bottom: 1px solid #eee; }
+    .info-column { flex: 1; }
+    .info-row { margin-bottom: 8px; }
+    .info-label { color: #666; font-size: 10px; text-transform: uppercase; }
+    .info-value { font-weight: 500; }
+    
+    .salary-section { padding: 20px; }
+    .salary-header { font-weight: bold; font-size: 14px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 2px solid #4f46e5; }
+    
+    .salary-table { width: 100%; border-collapse: collapse; }
+    .salary-table th, .salary-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+    .salary-table th { background: #f9fafb; font-weight: 600; font-size: 10px; text-transform: uppercase; }
+    .salary-table td:last-child { text-align: right; }
+    .salary-table th:last-child { text-align: right; }
+    .salary-table tr.total { background: #f3f4f6; font-weight: bold; }
+    .salary-table tr.net { background: #4f46e5; color: white; font-weight: bold; }
+    
+    .two-columns { display: flex; gap: 20px; }
+    .two-columns > div { flex: 1; }
+    
+    .footer { padding: 15px 20px; background: #f9fafb; font-size: 10px; color: #666; text-align: center; }
+    
+    .amount { font-family: 'Courier New', monospace; }
+    .deduction { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="payslip">
+    <!-- Header -->
+    <div class="header">
+      <div class="company-name">{{company_name}}</div>
+      <div class="payslip-title">Payslip for {{month}} {{year}}</div>
+    </div>
+    
+    <!-- Company & Employee Info -->
+    <div class="info-section">
+      <div class="info-column">
+        <div class="info-row">
+          <div class="info-label">Company Address</div>
+          <div class="info-value">{{company_address}}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Payment Date</div>
+          <div class="info-value">{{payment_date}}</div>
+        </div>
+      </div>
+      <div class="info-column">
+        <div class="info-row">
+          <div class="info-label">Employee Name</div>
+          <div class="info-value">{{employee_name}}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Employee ID</div>
+          <div class="info-value">{{employee_id}}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Department</div>
+          <div class="info-value">{{department}}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Designation</div>
+          <div class="info-value">{{designation}}</div>
+        </div>
+      </div>
+      <div class="info-column">
+        <div class="info-row">
+          <div class="info-label">PAN</div>
+          <div class="info-value">{{pan_masked}}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Bank Account</div>
+          <div class="info-value">{{bank_account_masked}}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">UAN</div>
+          <div class="info-value">{{uan}}</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Salary Breakdown -->
+    <div class="salary-section">
+      <div class="two-columns">
+        <!-- Earnings -->
+        <div>
+          <div class="salary-header">Earnings</div>
+          <table class="salary-table">
+            <tr>
+              <th>Component</th>
+              <th>Amount (₹)</th>
+            </tr>
+            <tr>
+              <td>Basic Salary</td>
+              <td class="amount">{{basic}}</td>
+            </tr>
+            <tr>
+              <td>House Rent Allowance</td>
+              <td class="amount">{{hra}}</td>
+            </tr>
+            <tr>
+              <td>Special Allowance</td>
+              <td class="amount">{{special_allowance}}</td>
+            </tr>
+            <tr class="total">
+              <td>Gross Salary</td>
+              <td class="amount">{{gross_salary}}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <!-- Deductions -->
+        <div>
+          <div class="salary-header">Deductions</div>
+          <table class="salary-table">
+            <tr>
+              <th>Component</th>
+              <th>Amount (₹)</th>
+            </tr>
+            <tr>
+              <td>Provident Fund (Employee)</td>
+              <td class="amount deduction">{{pf_employee}}</td>
+            </tr>
+            <tr>
+              <td>ESI (Employee)</td>
+              <td class="amount deduction">{{esi_employee}}</td>
+            </tr>
+            <tr>
+              <td>Professional Tax</td>
+              <td class="amount deduction">{{professional_tax}}</td>
+            </tr>
+            <tr>
+              <td>TDS</td>
+              <td class="amount deduction">{{tds}}</td>
+            </tr>
+            <tr class="total">
+              <td>Total Deductions</td>
+              <td class="amount deduction">{{total_deductions}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Net Salary -->
+      <table class="salary-table" style="margin-top: 20px;">
+        <tr class="net">
+          <td style="font-size: 14px;">Net Salary Payable</td>
+          <td class="amount" style="font-size: 16px;">₹ {{net_salary}}</td>
+        </tr>
+      </table>
+      
+      <!-- Amount in Words -->
+      <div style="margin-top: 15px; padding: 10px; background: #f9fafb; border-radius: 4px;">
+        <span style="color: #666;">Amount in Words:</span>
+        <strong>{{amount_in_words}}</strong>
+      </div>
+    </div>
+    
+    <!-- Employer Contributions (Info Only) -->
+    <div class="info-section" style="background: #f9fafb;">
+      <div class="info-column">
+        <div class="info-label">Employer Contributions (Not deducted from salary)</div>
+        <div style="margin-top: 8px;">
+          <span>PF (Employer): ₹{{pf_employer}}</span> | 
+          <span>ESI (Employer): ₹{{esi_employer}}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <p>This is a computer-generated document and does not require a signature.</p>
+      <p style="margin-top: 5px;">Generated on {{generated_date}} | {{company_name}}</p>
+    </div>
+  </div>
+</body>
+</html>

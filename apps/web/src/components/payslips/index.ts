@@ -1,0 +1,1 @@
+export { PayslipManager } from './PayslipManager';
