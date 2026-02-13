@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 type Step = 'company' | 'structure' | 'employee' | 'complete';
 
 interface CompanyData {
+    name: string;
     address: string;
     phone: string;
     pf_registration: string;
@@ -28,12 +29,13 @@ interface EmployeeData {
 }
 
 export function OnboardingWizard() {
-    const { company, updateProfile } = useAuth();
-    const [step, setStep] = useState<Step>('company');
+    const { user, company, updateProfile } = useAuth();
+    const [step, setStep] = useState<Step>(company ? 'structure' : 'company');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [companyData, setCompanyData] = useState<CompanyData>({
+        name: company?.name || '',
         address: company?.address || '',
         phone: company?.phone || '',
         pf_registration: company?.pf_registration || '',
@@ -62,10 +64,35 @@ export function OnboardingWizard() {
         setError(null);
 
         try {
-            await updateProfile(companyData);
-            setStep('structure');
+            if (company) {
+                // Company exists — just update details
+                await updateProfile(companyData);
+                setStep('structure');
+            } else {
+                // No company yet — create one
+                const { error: insertError } = await supabase
+                    .from('companies')
+                    .insert({
+                        name: companyData.name || 'My Company',
+                        email: user?.email || '',
+                        address: companyData.address || null,
+                        phone: companyData.phone || null,
+                        pf_registration: companyData.pf_registration || null,
+                        esi_registration: companyData.esi_registration || null,
+                        pan_number: companyData.pan_number || null,
+                    });
+
+                if (insertError) {
+                    console.error('Company insert error:', insertError);
+                    throw insertError;
+                }
+
+                // Reload to pick up the new company in auth context
+                window.location.href = '/onboarding';
+            }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update company');
+            console.error('Onboarding error:', err);
+            setError(err instanceof Error ? err.message : 'Failed to save company');
         } finally {
             setLoading(false);
         }
@@ -162,6 +189,19 @@ export function OnboardingWizard() {
                     <p>Add your company details for compliance and payslips</p>
 
                     <form onSubmit={handleCompanySubmit}>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Company Name *</label>
+                                <input
+                                    type="text"
+                                    value={companyData.name}
+                                    onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
+                                    placeholder="Acme Technologies Pvt. Ltd."
+                                    required
+                                />
+                            </div>
+                        </div>
+
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Company Address</label>

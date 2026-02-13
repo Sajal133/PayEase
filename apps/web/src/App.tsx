@@ -191,7 +191,7 @@ function CalendarPage() {
 // ============================================================================
 
 function App() {
-    const { user, loading } = useAuth();
+    const { user, company, loading } = useAuth();
 
     if (loading) {
         return (
@@ -209,6 +209,16 @@ function App() {
                 <Route path="/auth/login" element={<LoginPage />} />
                 <Route path="/auth/signup" element={<SignupPage />} />
                 <Route path="*" element={<Navigate to="/auth/login" replace />} />
+            </Routes>
+        );
+    }
+
+    // Authenticated but no company — force onboarding
+    if (!company) {
+        return (
+            <Routes>
+                <Route path="/onboarding" element={<OnboardingWizard />} />
+                <Route path="*" element={<Navigate to="/onboarding" replace />} />
             </Routes>
         );
     }

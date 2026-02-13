@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 
@@ -135,22 +136,22 @@ export function Dashboard() {
             <div className="quick-actions">
                 <h2>Quick Actions</h2>
                 <div className="actions-grid">
-                    <a href="/employees/add" className="action-card">
+                    <Link to="/employees/add" className="action-card">
                         <span className="action-icon">➕</span>
                         <span className="action-label">Add Employee</span>
-                    </a>
-                    <a href="/payroll/run" className="action-card">
+                    </Link>
+                    <Link to="/payroll/run" className="action-card">
                         <span className="action-icon">💰</span>
                         <span className="action-label">Run Payroll</span>
-                    </a>
-                    <a href="/payslips" className="action-card">
+                    </Link>
+                    <Link to="/payslips" className="action-card">
                         <span className="action-icon">📄</span>
                         <span className="action-label">Generate Payslips</span>
-                    </a>
-                    <a href="/employees" className="action-card">
+                    </Link>
+                    <Link to="/employees" className="action-card">
                         <span className="action-icon">👥</span>
                         <span className="action-label">View Employees</span>
-                    </a>
+                    </Link>
                 </div>
             </div>
 
@@ -161,7 +162,7 @@ export function Dashboard() {
                 {!loading && recentPayrolls.length === 0 && (
                     <div className="empty-state">
                         <p>No payroll runs yet</p>
-                        <a href="/payroll/run" className="btn btn-primary">Run First Payroll</a>
+                        <Link to="/payroll/run" className="btn btn-primary">Run First Payroll</Link>
                     </div>
                 )}
                 {!loading && recentPayrolls.length > 0 && (
