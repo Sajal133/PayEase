@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 
@@ -13,6 +13,7 @@ interface DashboardStats {
 
 export function Dashboard() {
     const { company } = useAuth();
+    const navigate = useNavigate();
     const [stats, setStats] = useState<DashboardStats>({
         totalEmployees: 0,
         activeEmployees: 0,
@@ -100,7 +101,7 @@ export function Dashboard() {
                     <p className="subtitle">{company?.name || 'Your Company'}</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-primary" onClick={() => window.location.href = '/payroll/run'}>
+                    <button className="btn btn-primary" onClick={() => navigate('/payroll')}>
                         Run Payroll
                     </button>
                 </div>
@@ -149,7 +150,7 @@ export function Dashboard() {
                         <span className="action-icon">➕</span>
                         <span className="action-label">Add Employee</span>
                     </Link>
-                    <Link to="/payroll/run" className="action-card">
+                    <Link to="/payroll" className="action-card">
                         <span className="action-icon">💰</span>
                         <span className="action-label">Run Payroll</span>
                     </Link>
