@@ -82,6 +82,11 @@
     color: #f59e0b;
 }
 
+.stat-icon.terminated {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
 .stat-icon.pending {
     background: #f3e8ff;
     color: #9333ea;

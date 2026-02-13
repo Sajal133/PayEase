@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 interface DashboardStats {
     totalEmployees: number;
     activeEmployees: number;
+    terminatedEmployees: number;
     lastPayrollAmount: number;
     pendingPayrollRuns: number;
 }
@@ -15,6 +16,7 @@ export function Dashboard() {
     const [stats, setStats] = useState<DashboardStats>({
         totalEmployees: 0,
         activeEmployees: 0,
+        terminatedEmployees: 0,
         lastPayrollAmount: 0,
         pendingPayrollRuns: 0,
     });
@@ -42,6 +44,12 @@ export function Dashboard() {
                 .eq('company_id', company!.id)
                 .eq('status', 'active');
 
+            const { count: terminatedCount } = await supabase
+                .from('employees')
+                .select('*', { count: 'exact', head: true })
+                .eq('company_id', company!.id)
+                .eq('status', 'terminated');
+
             // Get recent payroll runs
             const { data: payrollRuns } = await supabase
                 .from('payroll_runs')
@@ -60,6 +68,7 @@ export function Dashboard() {
             setStats({
                 totalEmployees: totalCount || 0,
                 activeEmployees: activeCount || 0,
+                terminatedEmployees: terminatedCount || 0,
                 lastPayrollAmount: payrollRuns?.[0]?.total_net || 0,
                 pendingPayrollRuns: pendingCount || 0,
             });
@@ -100,18 +109,18 @@ export function Dashboard() {
             {/* Stats Cards */}
             <div className="stats-grid">
                 <div className="stat-card">
-                    <div className="stat-icon employees">👥</div>
+                    <div className="stat-icon active">✅</div>
                     <div className="stat-content">
-                        <span className="stat-value">{stats.totalEmployees}</span>
-                        <span className="stat-label">Total Employees</span>
+                        <span className="stat-value">{stats.activeEmployees}</span>
+                        <span className="stat-label">Active Employees</span>
                     </div>
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon active">✓</div>
+                    <div className="stat-icon terminated">🚫</div>
                     <div className="stat-content">
-                        <span className="stat-value">{stats.activeEmployees}</span>
-                        <span className="stat-label">Active Employees</span>
+                        <span className="stat-value">{stats.terminatedEmployees}</span>
+                        <span className="stat-label">Terminated</span>
                     </div>
                 </div>
 
