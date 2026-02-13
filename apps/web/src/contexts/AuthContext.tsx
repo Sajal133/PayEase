@@ -47,9 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Initialize auth state
     useEffect(() => {
         // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
             if (session?.user) {
-                loadCompany(session.user.id);
+                await loadCompany(session.user.id);
             }
             setState(prev => ({
                 ...prev,
