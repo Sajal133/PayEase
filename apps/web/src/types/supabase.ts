@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
     public: {
         Tables: {
+            attendance: {
+                Row: {
+                    check_in: string | null
+                    check_out: string | null
+                    created_at: string | null
+                    date: string
+                    employee_id: string
+                    id: string
+                    status: Database["public"]["Enums"]["attendance_status"]
+                    updated_at: string | null
+                }
+                Insert: {
+                    check_in?: string | null
+                    check_out?: string | null
+                    created_at?: string | null
+                    date: string
+                    employee_id: string
+                    id?: string
+                    status: Database["public"]["Enums"]["attendance_status"]
+                    updated_at?: string | null
+                }
+                Update: {
+                    check_in?: string | null
+                    check_out?: string | null
+                    created_at?: string | null
+                    date?: string
+                    employee_id?: string
+                    id?: string
+                    status?: Database["public"]["Enums"]["attendance_status"]
+                    updated_at?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "attendance_employee_id_fkey"
+                        columns: ["employee_id"]
+                        isOneToOne: false
+                        referencedRelation: "employees"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
             companies: {
                 Row: {
                     address: string | null
@@ -432,7 +473,7 @@ export type Database = {
             [_ in never]: never
         }
         Enums: {
-            [_ in never]: never
+            attendance_status: "present" | "absent" | "half_day" | "on_leave" | "holiday" | "weekend"
         }
         CompositeTypes: {
             [_ in never]: never

@@ -151,6 +151,41 @@ export async function generatePayslipPDF(data: PayslipData): Promise<GeneratedPa
 
     y += 10;
 
+    // ===== Attendance / LOP Info =====
+    const lopDays = payrollItem.lop_days || 0;
+    const daysWorked = payrollItem.days_worked || 30;
+    const totalDaysInMonth = lopDays + daysWorked;
+
+    if (lopDays > 0) {
+        // Amber highlight box
+        doc.setFillColor(255, 251, 235); // amber-50
+        doc.setDrawColor(245, 158, 11);  // amber-500
+        doc.rect(15, y - 5, 180, 22, 'FD');
+
+        doc.setTextColor(146, 64, 14); // amber-800
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text('Attendance Summary', 17, y);
+
+        y += 7;
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Total Days: ${totalDaysInMonth}`, 17, y);
+        doc.text(`Paid Days: ${daysWorked}`, 70, y);
+        doc.setTextColor(200, 50, 50);
+        doc.text(`LOP Days: ${lopDays}`, 130, y);
+
+        y += 7;
+        const lopDeduction = Math.round((payrollItem.gross_salary || 0) / (daysWorked || 1) * lopDays);
+        doc.setTextColor(200, 50, 50);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`LOP Deduction (approx): \u20B9 ${formatCurrency(lopDeduction)}`, 17, y);
+
+        doc.setTextColor(...blackText);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        y += 12;
+    }
+
     // ===== Earnings =====
     doc.setFillColor(240, 240, 240);
     doc.rect(15, y - 5, 85, 8, 'F');
@@ -224,6 +259,21 @@ export async function generatePayslipPDF(data: PayslipData): Promise<GeneratedPa
     doc.text(`₹ ${formatCurrency(payrollItem.net_salary || 0)}`, 190, y + 2, { align: 'right' });
 
     y += 18;
+
+    // ===== LOP badge (compact) below Net Salary =====
+    if (lopDays > 0) {
+        doc.setFillColor(254, 242, 242); // red-50
+        doc.rect(15, y - 5, 180, 8, 'F');
+        doc.setFontSize(9);
+        doc.setTextColor(185, 28, 28); // red-700
+        doc.text(
+            `Note: Salary prorated for ${daysWorked} paid days out of ${totalDaysInMonth}. LOP days: ${lopDays}.`,
+            20, y
+        );
+        doc.setTextColor(...blackText);
+        doc.setFontSize(10);
+        y += 10;
+    }
 
     // Amount in words
     doc.setFontSize(10);

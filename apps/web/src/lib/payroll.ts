@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import type { Database } from '../types/supabase';
+import { calculateMonthlyAttendance } from './attendance';
 
 type SalaryStructure = Database['public']['Tables']['salary_structures']['Row'];
 type PayrollRun = Database['public']['Tables']['payroll_runs']['Row'];
@@ -52,6 +53,11 @@ export interface SalaryBreakdown {
     // CTC
     monthlyCTC: number;
     annualCTC: number;
+
+    // Attendance
+    lopDays: number;
+    daysInMonth: number;
+    paidDays: number;
 }
 
 export interface SalaryConfig {
@@ -62,6 +68,8 @@ export interface SalaryConfig {
     esiEnabled?: boolean;      // Auto-calculated based on gross
     ptEnabled?: boolean;       // Default true
     state?: string;            // For PT calculation
+    lopDays?: number;          // Loss of Pay days
+    daysInMonth?: number;      // Total days in month (default 30)
 }
 
 // ============================================================================
@@ -78,44 +86,85 @@ export function calculateSalary(config: SalaryConfig): SalaryBreakdown {
         hraPercentage = 50,
         pfEnabled = true,
         ptEnabled = true,
+        esiEnabled = true,
         state = 'Karnataka',
+        lopDays = 0,
+        daysInMonth = 30,
     } = config;
+
+    // Proration Factor
+    // Ensure we don't divide by zero or have negative paid days
+    const safeDaysInMonth = Math.max(1, daysInMonth);
+    const paidDays = Math.max(0, safeDaysInMonth - Math.max(0, lopDays));
+    const prorataFactor = paidDays / safeDaysInMonth;
 
     const monthlyCTC = annualCTC / 12;
 
-    // Step 1: Calculate Basic
-    const basic = Math.round(monthlyCTC * (basicPercentage / 100));
+    // Step 1: Calculate Full Monthly Components
+    const fullBasic = monthlyCTC * (basicPercentage / 100);
+    const fullHRA = fullBasic * (hraPercentage / 100);
 
-    // Step 2: Calculate HRA (% of Basic)
-    const hra = Math.round(basic * (hraPercentage / 100));
+    // Step 2: Apply Proration to Earnings
+    const basic = Math.round(fullBasic * prorataFactor);
+    const hra = Math.round(fullHRA * prorataFactor);
 
-    // Step 3: Calculate Employer Contributions
+    // Step 3: Calculate Employer Contributions on Earned Basic
     const pfBasic = Math.min(basic, STATUTORY_LIMITS.PF_BASIC_CAP);
     const employerPF = pfEnabled
         ? Math.round(pfBasic * (STATUTORY_LIMITS.PF_EMPLOYER_EPF_RATE + STATUTORY_LIMITS.PF_EMPLOYER_EPS_RATE))
         : 0;
 
-    // Step 4: Calculate Gross (before ESI check)
-    const preliminaryGross = basic + hra;
+    // Step 4: Calculate Preliminary Gross for components
+    // const preliminaryGross = basic + hra; // Deprecated check
 
-    // Step 5: Calculate Special Allowance
-    // CTC = Basic + HRA + Special + Employer PF + Employer ESI
-    // Special = CTC - Basic - HRA - Employer PF - (Employer ESI if applicable)
-    const esiApplicable = preliminaryGross <= STATUTORY_LIMITS.ESI_GROSS_LIMIT;
+    // Step 5: Special Allowance & ESI Logic
+    // ESI Eligibility is based on Gross Wages (Basic + HRA + Special + etc)
+    // We first estimate Gross assuming NO ESI to check eligibility.
+    // Estimated Gross = Prorated CTC - Employer PF
 
-    // First pass: estimate special allowance without ESI
-    let specialAllowance = monthlyCTC - basic - hra - employerPF;
-    let grossSalary = basic + hra + specialAllowance;
+    const proratedMonthlyCTC = monthlyCTC * prorataFactor;
+    const estimatedGross = proratedMonthlyCTC - employerPF;
 
-    // Check if ESI should apply now
-    const employerESI = esiApplicable
-        ? Math.round(grossSalary * STATUTORY_LIMITS.ESI_EMPLOYER_RATE)
-        : 0;
+    // Check ESI applicability
+    // Note: If estimatedGross > 21000, ESI definitely doesn't apply.
+    // If estimatedGross <= 21000, ESI applies, and the actual gross will be slightly lower 
+    // due to Employer ESI deduction from CTC.
+    const esiApplicable = esiEnabled && (estimatedGross <= STATUTORY_LIMITS.ESI_GROSS_LIMIT);
 
-    // Recalculate special allowance with ESI
-    specialAllowance = monthlyCTC - basic - hra - employerPF - employerESI;
-    if (specialAllowance < 0) specialAllowance = 0;
-    grossSalary = basic + hra + specialAllowance;
+    // First pass: Calculate breakdown
+    let grossSalary: number;
+    let specialAllowance: number;
+    let employerESI = 0;
+
+    if (esiApplicable) {
+        // If ESI applies:
+        // MonthlyCTC = Gross + EmployerPF + EmployerESI
+        // MonthlyCTC = Gross + EmployerPF + (Gross * 3.25%)
+        // MonthlyCTC - EmployerPF = Gross * 1.0325
+        // Gross = (MonthlyCTC - EmployerPF) / 1.0325
+
+        grossSalary = Math.round((proratedMonthlyCTC - employerPF) / (1 + STATUTORY_LIMITS.ESI_EMPLOYER_RATE));
+        employerESI = Math.round(grossSalary * STATUTORY_LIMITS.ESI_EMPLOYER_RATE);
+
+        // Back-calculate Special Allowance
+        // Gross = Basic + HRA + Special
+        specialAllowance = grossSalary - basic - hra;
+    } else {
+        // No ESI
+        grossSalary = estimatedGross; // actually needs rounding?
+        // Let's recalculate precisely
+        specialAllowance = proratedMonthlyCTC - basic - hra - employerPF;
+        // Gross is derived
+        grossSalary = basic + hra + specialAllowance;
+    }
+
+    // Safety check for negative special allowance
+    if (specialAllowance < 0) {
+        specialAllowance = 0;
+        grossSalary = basic + hra + specialAllowance;
+        // If special became 0, we might need to recalc Employer ESI if it was applicable, 
+        // but let's assume CTC is high enough to cover statutory or we accept the deviation.
+    }
 
     // Step 6: Employee Deductions
     const employeePF = pfEnabled
@@ -150,6 +199,9 @@ export function calculateSalary(config: SalaryConfig): SalaryBreakdown {
         netSalary,
         monthlyCTC,
         annualCTC,
+        lopDays,
+        daysInMonth,
+        paidDays,
     };
 }
 
@@ -253,7 +305,22 @@ export async function runPayroll(params: RunPayrollParams): Promise<PayrollRunRe
         throw new Error('No active employees found');
     }
 
-    // 2. Create payroll run
+    // 2. Delete any existing payroll run for this month (handles re-runs)
+    const { data: existingRuns } = await supabase
+        .from('payroll_runs')
+        .select('id')
+        .eq('company_id', companyId)
+        .eq('month', month)
+        .eq('year', year);
+
+    if (existingRuns && existingRuns.length > 0) {
+        for (const run of existingRuns) {
+            await supabase.from('payroll_items').delete().eq('payroll_run_id', run.id);
+            await supabase.from('payroll_runs').delete().eq('id', run.id);
+        }
+    }
+
+    // 3. Create payroll run
     const { data: payrollRun, error: runError } = await supabase
         .from('payroll_runs')
         .insert({
@@ -271,45 +338,62 @@ export async function runPayroll(params: RunPayrollParams): Promise<PayrollRunRe
 
     if (runError) throw runError;
 
-    // 3. Calculate and create payroll items for each employee
+    // 4. Calculate and create payroll items for each employee
     const items: PayrollItem[] = [];
     let totalGross = 0;
     let totalDeductions = 0;
     let totalNet = 0;
 
-    for (const emp of employees) {
-        const breakdown = calculateSalary({ annualCTC: emp.ctc });
+    try {
+        for (const emp of employees) {
+            // Fetch attendance for this employee for the payroll month
+            const attendance = await calculateMonthlyAttendance(emp.id, month, year);
+            const daysInMonth = new Date(year, month, 0).getDate();
 
-        const { data: item, error: itemError } = await supabase
-            .from('payroll_items')
-            .insert({
-                payroll_run_id: payrollRun.id,
-                employee_id: emp.id,
-                basic: breakdown.basic,
-                hra: breakdown.hra,
-                special_allowance: breakdown.specialAllowance,
-                gross_salary: breakdown.grossSalary,
-                pf_employee: breakdown.employeePF,
-                pf_employer: breakdown.employerPF,
-                esi_employee: breakdown.employeeESI,
-                esi_employer: breakdown.employerESI,
-                professional_tax: breakdown.professionalTax,
-                tds: breakdown.tds,
-                total_deductions: breakdown.totalDeductions,
-                net_salary: breakdown.netSalary,
-            })
-            .select()
-            .single();
+            const breakdown = calculateSalary({
+                annualCTC: emp.ctc,
+                lopDays: attendance.lopDays,
+                daysInMonth,
+            });
 
-        if (itemError) throw itemError;
-        items.push(item);
+            const { data: item, error: itemError } = await supabase
+                .from('payroll_items')
+                .insert({
+                    payroll_run_id: payrollRun.id,
+                    employee_id: emp.id,
+                    basic: breakdown.basic,
+                    hra: breakdown.hra,
+                    special_allowance: breakdown.specialAllowance,
+                    gross_salary: breakdown.grossSalary,
+                    pf_employee: breakdown.employeePF,
+                    pf_employer: breakdown.employerPF,
+                    esi_employee: breakdown.employeeESI,
+                    esi_employer: breakdown.employerESI,
+                    professional_tax: breakdown.professionalTax,
+                    tds: breakdown.tds,
+                    total_deductions: breakdown.totalDeductions,
+                    net_salary: breakdown.netSalary,
+                    lop_days: Math.round(breakdown.lopDays),
+                    days_worked: Math.round(breakdown.paidDays),
+                })
+                .select()
+                .single();
 
-        totalGross += breakdown.grossSalary;
-        totalDeductions += breakdown.totalDeductions;
-        totalNet += breakdown.netSalary;
+            if (itemError) throw itemError;
+            items.push(item);
+
+            totalGross += breakdown.grossSalary;
+            totalDeductions += breakdown.totalDeductions;
+            totalNet += breakdown.netSalary;
+        }
+    } catch (err) {
+        // Clean up the partial payroll run so re-runs aren't blocked
+        await supabase.from('payroll_items').delete().eq('payroll_run_id', payrollRun.id);
+        await supabase.from('payroll_runs').delete().eq('id', payrollRun.id);
+        throw err;
     }
 
-    // 4. Update payroll run with totals
+    // 5. Update payroll run with totals
     await supabase
         .from('payroll_runs')
         .update({
@@ -364,7 +448,7 @@ export async function getPayrollItems(payrollRunId: string): Promise<PayrollItem
  */
 export async function updatePayrollStatus(
     payrollRunId: string,
-    status: 'draft' | 'processing' | 'completed' | 'paid'
+    status: 'draft' | 'processing' | 'finalized' | 'paid'
 ): Promise<void> {
     const { error } = await supabase
         .from('payroll_runs')

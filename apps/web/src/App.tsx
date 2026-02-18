@@ -5,6 +5,7 @@ import { useAuth, ProtectedRoute } from './contexts/AuthContext';
 // Pages
 import { LoginPage, SignupPage } from './pages/auth';
 import EmployeesPage from './pages/EmployeesPage';
+import AttendancePage from './pages/Attendance'; // [NEW]
 
 // Components
 import { Dashboard, PayrollCalendar } from './components/dashboard';
@@ -40,6 +41,12 @@ function Sidebar() {
                 <NavLink to="/employees" className={`nav-item ${isActive('/employees') ? 'active' : ''}`}>
                     <span className="nav-icon">👥</span>
                     Employees
+                </NavLink>
+
+                {/* [NEW] Attendance */}
+                <NavLink to="/attendance" className={`nav-item ${isActive('/attendance') ? 'active' : ''}`}>
+                    <span className="nav-icon">🕒</span>
+                    Attendance
                 </NavLink>
 
                 <NavLink to="/payroll" className={`nav-item ${isActive('/payroll') ? 'active' : ''}`}>
@@ -294,6 +301,7 @@ function App() {
                 <Routes>
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/employees/*" element={<EmployeesPage />} />
+                    <Route path="/attendance" element={<AttendancePage />} /> {/* [NEW] */}
                     <Route path="/payroll" element={<PayrollPage />} />
                     <Route path="/salary-calculator" element={<SalaryCalculatorPage />} />
                     <Route path="/payslips" element={<PayslipsPage />} />

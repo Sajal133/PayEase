@@ -1,6 +1,9 @@
 /* ============================================================================
    PayEase — Global Design Tokens & Base Styles
    ============================================================================ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* CSS Custom Properties */
 :root {

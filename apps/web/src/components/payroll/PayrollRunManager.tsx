@@ -60,7 +60,9 @@ export function PayrollRunManager({ companyId }: PayrollRunManagerProps) {
             setRuns([result.payrollRun, ...runs]);
             setShowNewForm(false);
             setSelectedRun(result.payrollRun);
-            setItems(result.items);
+            // Reload items with employee join so names display correctly
+            const itemsWithNames = await getPayrollItems(result.payrollRun.id);
+            setItems(itemsWithNames);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to run payroll');
         } finally {
@@ -81,7 +83,7 @@ export function PayrollRunManager({ companyId }: PayrollRunManagerProps) {
         }
     }
 
-    async function handleUpdateStatus(status: 'draft' | 'processing' | 'completed' | 'paid') {
+    async function handleUpdateStatus(status: 'draft' | 'processing' | 'finalized' | 'paid') {
         if (!selectedRun) return;
         try {
             await updatePayrollStatus(selectedRun.id, status);
@@ -104,7 +106,7 @@ export function PayrollRunManager({ companyId }: PayrollRunManagerProps) {
         switch (status) {
             case 'draft': return 'status-draft';
             case 'processing': return 'status-processing';
-            case 'completed': return 'status-completed';
+            case 'finalized': return 'status-completed';
             case 'paid': return 'status-paid';
             default: return '';
         }
@@ -196,7 +198,7 @@ export function PayrollRunManager({ companyId }: PayrollRunManagerProps) {
                                 >
                                     <option value="draft">Draft</option>
                                     <option value="processing">Processing</option>
-                                    <option value="completed">Completed</option>
+                                    <option value="finalized">Completed</option>
                                     <option value="paid">Paid</option>
                                 </select>
                             </div>
@@ -231,6 +233,7 @@ export function PayrollRunManager({ companyId }: PayrollRunManagerProps) {
                                     <th>PF</th>
                                     <th>ESI</th>
                                     <th>PT</th>
+                                    <th>LOP</th>
                                     <th>Net</th>
                                 </tr>
                             </thead>
@@ -244,6 +247,7 @@ export function PayrollRunManager({ companyId }: PayrollRunManagerProps) {
                                         <td className="deduction">{formatCurrency(item.pf_employee || 0)}</td>
                                         <td className="deduction">{formatCurrency(item.esi_employee || 0)}</td>
                                         <td className="deduction">{formatCurrency(item.professional_tax || 0)}</td>
+                                        <td className={item.lop_days ? 'deduction' : ''}>{item.lop_days || 0} days</td>
                                         <td className="net">{formatCurrency(item.net_salary || 0)}</td>
                                     </tr>
                                 ))}
