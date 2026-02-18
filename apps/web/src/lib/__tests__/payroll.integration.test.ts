@@ -76,26 +76,22 @@ describe('Payroll Integration — Golden CTC → Net Salary', () => {
     // Monthly CTC = 25,000
     // Basic = 25000 * 0.4 = 10,000
     // HRA = 10000 * 0.5 = 5,000
-    // Preliminary gross = 15,000 → ≤ 21K → ESI applies
     // pfBasic = min(10000, 15000) = 10000
     // employerPF = round(10000 * 0.12) = 1200
-    // employerESI will be calc'd after special allowance
-    // specialAllowance_v1 = 25000 - 10000 - 5000 - 1200 = 8800
-    // gross_v1 = 10000 + 5000 + 8800 = 23800
-    // But wait: preliminaryGross = basic + hra = 15000, ≤ 21,000 → ESI applies
-    // employerESI = round(23800 * 0.0325) ≈ 774
-    // specialAllowance_v2 = 25000 - 10000 - 5000 - 1200 - 774 = 8026
-    // gross_v2 = 10000 + 5000 + 8026 = 23026
-    // But the code recalculates employerESI based on the first gross estimate...
-    // Let's just compute and trust the engine, then validate invariants
-    assertBreakdown('Low CTC – ESI applicable', 300_000, {
+    // estimatedGross = 25000 - 1200 = 23,800 → > 21K → NO ESI
+    // specialAllowance = 25000 - 10000 - 5000 - 1200 = 8800
+    // gross = 10000 + 5000 + 8800 = 23800
+    // employeePF = min(round(10000 * 0.12), 1800) = 1200
+    // PT = 200 (Karnataka, gross > 15K)
+    // net = 23800 - 1200 - 200 = 22400
+    assertBreakdown('Low CTC – no ESI (gross > ₹21K)', 300_000, {
         basic: 10000,
         hra: 5000,
         employeePF: Math.min(Math.round(10000 * 0.12), 1800), // 1200
-        employeeESI: 0, // we'll check > 0 separately via esiShouldApply
+        employeeESI: 0,
         professionalTax: 200, // Karnataka, gross > 15K
-        netSalaryApprox: 21_500,
-        esiShouldApply: true,
+        netSalaryApprox: 22_400,
+        esiShouldApply: false,
     });
 
     // ₹6,00,000 CTC
