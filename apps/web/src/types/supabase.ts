@@ -732,3 +732,14 @@ export const Constants = {
     },
   },
 } as const
+
+// ============================================================================
+// Convenience type aliases used across the application
+// ============================================================================
+
+export type Employee = Tables<'employees'>
+export type SalaryStructure = Tables<'salary_structures'>
+export type InsertTables<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Insert']
+export type UpdateTables<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Update']
