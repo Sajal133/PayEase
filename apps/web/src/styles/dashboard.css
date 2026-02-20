@@ -205,3 +205,123 @@
     color: var(--gray-500);
     margin-bottom: 1rem;
 }
+
+/* ============================================================================
+   Leave Overview Widget
+   ============================================================================ */
+
+.leave-overview {
+    margin-bottom: 2rem;
+}
+
+.leave-overview h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--gray-700);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.leave-year {
+    background: var(--gray-100);
+    color: var(--gray-500);
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.leave-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .leave-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.leave-stat-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+}
+
+.leave-stat-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.leave-stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.leave-stat-icon.cl {
+    background: #dbeafe;
+}
+
+.leave-stat-icon.sl {
+    background: #fef3c7;
+}
+
+.leave-stat-icon.lop {
+    background: #fee2e2;
+}
+
+.leave-stat-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--gray-700);
+}
+
+/* Progress bar */
+.leave-progress {
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.leave-progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+.leave-progress-bar.cl {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.leave-progress-bar.sl {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.leave-stat-numbers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+/* LOP card */
+.leave-lop-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ef4444;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}

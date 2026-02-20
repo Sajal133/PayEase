@@ -6,6 +6,7 @@ import { useAuth, ProtectedRoute } from './contexts/AuthContext';
 import { LoginPage, SignupPage } from './pages/auth';
 import EmployeesPage from './pages/EmployeesPage';
 import AttendancePage from './pages/Attendance'; // [NEW]
+import SettingsPage from './pages/SettingsPage';
 
 // Components
 import { Dashboard, PayrollCalendar } from './components/dashboard';
@@ -67,6 +68,11 @@ function Sidebar() {
                 <NavLink to="/calendar" className={`nav-item ${isActive('/calendar') ? 'active' : ''}`}>
                     <span className="nav-icon">📅</span>
                     Calendar
+                </NavLink>
+
+                <NavLink to="/settings" className={`nav-item ${isActive('/settings') ? 'active' : ''}`}>
+                    <span className="nav-icon">⚙️</span>
+                    Settings
                 </NavLink>
             </nav>
 
@@ -308,6 +314,7 @@ function App() {
                     <Route path="/payslips/:runId" element={<PayslipsPage />} />
                     <Route path="/calendar" element={<CalendarPage />} />
                     <Route path="/onboarding" element={<OnboardingWizard />} />
+                    <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>

@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import type { Database } from '../types/supabase';
 import { calculateMonthlyAttendance } from './attendance';
+import { getCompanyLeavePolicy, getOrCreateLeaveBalance } from './leaves';
 
 type SalaryStructure = Database['public']['Tables']['salary_structures']['Row'];
 type PayrollRun = Database['public']['Tables']['payroll_runs']['Row'];
@@ -345,7 +346,13 @@ export async function runPayroll(params: RunPayrollParams): Promise<PayrollRunRe
     let totalNet = 0;
 
     try {
+        // Fetch company leave policy once for all employees
+        const companyPolicy = await getCompanyLeavePolicy(companyId);
+
         for (const emp of employees) {
+            // Ensure leave balance exists with company-configured totals
+            await getOrCreateLeaveBalance(emp.id, year, companyPolicy ?? undefined);
+
             // Fetch attendance for this employee for the payroll month
             const attendance = await calculateMonthlyAttendance(emp.id, month, year);
             const daysInMonth = new Date(year, month, 0).getDate();
