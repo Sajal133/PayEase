@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 
-type Step = 'company' | 'structure' | 'employee' | 'complete';
+type Step = 'company' | 'structure' | 'leave_policy' | 'employee' | 'complete';
 
 interface CompanyData {
     name: string;
@@ -18,6 +18,11 @@ interface SalaryStructureData {
     basic_percent: number;
     hra_percent: number;
     pf_enabled: boolean;
+}
+
+interface LeavePolicyData {
+    casual_leave_total: number;
+    sick_leave_total: number;
 }
 
 interface EmployeeData {
@@ -48,6 +53,11 @@ export function OnboardingWizard() {
         basic_percent: 40,
         hra_percent: 50,
         pf_enabled: true,
+    });
+
+    const [leavePolicyData, setLeavePolicyData] = useState<LeavePolicyData>({
+        casual_leave_total: (company as any)?.casual_leave_total ?? 24,
+        sick_leave_total: (company as any)?.sick_leave_total ?? 6,
     });
 
     const [employeeData, setEmployeeData] = useState<EmployeeData>({
@@ -116,9 +126,32 @@ export function OnboardingWizard() {
                 });
 
             if (structureError) throw structureError;
-            setStep('employee');
+            setStep('leave_policy');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create salary structure');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleLeavePolicySubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        try {
+            const { error: updateError } = await supabase
+                .from('companies')
+                .update({
+                    casual_leave_total: leavePolicyData.casual_leave_total,
+                    sick_leave_total: leavePolicyData.sick_leave_total,
+                })
+                .eq('id', company!.id);
+
+            if (updateError) throw updateError;
+            setStep('employee');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to save leave policy');
         } finally {
             setLoading(false);
         }
@@ -162,8 +195,9 @@ export function OnboardingWizard() {
     const steps = [
         { key: 'company', label: 'Company Info', number: 1 },
         { key: 'structure', label: 'Salary Structure', number: 2 },
-        { key: 'employee', label: 'First Employee', number: 3 },
-        { key: 'complete', label: 'Done', number: 4 },
+        { key: 'leave_policy', label: 'Leave Policy', number: 3 },
+        { key: 'employee', label: 'First Employee', number: 4 },
+        { key: 'complete', label: 'Done', number: 5 },
     ];
 
     const currentStepIndex = steps.findIndex(s => s.key === step);
@@ -326,6 +360,85 @@ export function OnboardingWizard() {
                                 Back
                             </button>
                             <button type="submit" className="btn btn-primary" disabled={loading}>
+                                {loading ? 'Saving...' : 'Next: Leave Policy'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* Step 3: Leave Policy */}
+            {step === 'leave_policy' && (
+                <div className="wizard-step">
+                    <h2>Configure Leave Policy</h2>
+                    <p>Set the annual leave entitlements for your employees</p>
+
+                    <form onSubmit={handleLeavePolicySubmit}>
+                        <div className="leave-policy-info">
+                            <div className="info-icon">📋</div>
+                            <div>
+                                <strong>How it works</strong>
+                                <p>
+                                    Employees get the leave days you set here each calendar year. 
+                                    Any absence beyond these limits — or days explicitly marked as LOP — will result in a proportional salary deduction.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>
+                                    <span className="leave-label-icon">🏖️</span>
+                                    Casual Leave (days/year)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={leavePolicyData.casual_leave_total}
+                                    onChange={(e) => setLeavePolicyData({ ...leavePolicyData, casual_leave_total: Number(e.target.value) })}
+                                    min={0}
+                                    max={365}
+                                />
+                                <span className="form-hint">For personal errands, family occasions, etc.</span>
+                            </div>
+                            <div className="form-group">
+                                <label>
+                                    <span className="leave-label-icon">🏥</span>
+                                    Sick Leave (days/year)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={leavePolicyData.sick_leave_total}
+                                    onChange={(e) => setLeavePolicyData({ ...leavePolicyData, sick_leave_total: Number(e.target.value) })}
+                                    min={0}
+                                    max={365}
+                                />
+                                <span className="form-hint">For illness or medical appointments</span>
+                            </div>
+                        </div>
+
+                        <div className="leave-summary-preview">
+                            <div className="preview-title">Annual Leave Summary</div>
+                            <div className="preview-items">
+                                <div className="preview-item">
+                                    <span className="preview-label">Total Paid Leaves</span>
+                                    <span className="preview-value">{leavePolicyData.casual_leave_total + leavePolicyData.sick_leave_total} days</span>
+                                </div>
+                                <div className="preview-item">
+                                    <span className="preview-label">Casual Leave</span>
+                                    <span className="preview-value cl">{leavePolicyData.casual_leave_total} days</span>
+                                </div>
+                                <div className="preview-item">
+                                    <span className="preview-label">Sick Leave</span>
+                                    <span className="preview-value sl">{leavePolicyData.sick_leave_total} days</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="wizard-actions">
+                            <button type="button" className="btn btn-secondary" onClick={() => setStep('structure')}>
+                                Back
+                            </button>
+                            <button type="submit" className="btn btn-primary" disabled={loading}>
                                 {loading ? 'Saving...' : 'Next: Add Employee'}
                             </button>
                         </div>
@@ -333,7 +446,7 @@ export function OnboardingWizard() {
                 </div>
             )}
 
-            {/* Step 3: First Employee */}
+            {/* Step 4: First Employee */}
             {step === 'employee' && (
                 <div className="wizard-step">
                     <h2>Add Your First Employee</h2>
@@ -397,7 +510,7 @@ export function OnboardingWizard() {
                         </div>
 
                         <div className="wizard-actions">
-                            <button type="button" className="btn btn-secondary" onClick={() => setStep('structure')}>
+                            <button type="button" className="btn btn-secondary" onClick={() => setStep('leave_policy')}>
                                 Back
                             </button>
                             <button type="button" className="btn btn-ghost" onClick={skipEmployee}>
@@ -411,7 +524,7 @@ export function OnboardingWizard() {
                 </div>
             )}
 
-            {/* Step 4: Complete */}
+            {/* Step 5: Complete */}
             {step === 'complete' && (
                 <div className="wizard-step complete">
                     <div className="success-icon">🎉</div>

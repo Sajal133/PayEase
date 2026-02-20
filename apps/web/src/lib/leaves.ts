@@ -5,11 +5,14 @@ export type LeaveBalance = Database['public']['Tables']['leave_balances']['Row']
 
 /**
  * Get leave balance for an employee for a given year.
- * Auto-creates a row with defaults (24 CL, 6 SL) if none exists.
+ * Auto-creates a row if none exists, using the company's leave policy
+ * (casualTotal / sickTotal). Falls back to DB defaults (24 CL, 6 SL)
+ * if no company policy is passed.
  */
 export async function getOrCreateLeaveBalance(
     employeeId: string,
-    year: number
+    year: number,
+    companyPolicy?: { casualTotal: number; sickTotal: number }
 ): Promise<LeaveBalance> {
     const { data, error } = await supabase
         .from('leave_balances')
@@ -22,15 +25,38 @@ export async function getOrCreateLeaveBalance(
 
     if (data) return data;
 
-    // Auto-create with defaults
+    // Auto-create with company policy or DB defaults
+    const insertData: any = { employee_id: employeeId, year };
+    if (companyPolicy) {
+        insertData.casual_total = companyPolicy.casualTotal;
+        insertData.sick_total = companyPolicy.sickTotal;
+    }
+
     const { data: created, error: createErr } = await supabase
         .from('leave_balances')
-        .insert({ employee_id: employeeId, year })
+        .insert(insertData)
         .select()
         .single();
 
     if (createErr) throw createErr;
     return created;
+}
+
+/**
+ * Fetch the company's leave policy (casual/sick totals).
+ */
+export async function getCompanyLeavePolicy(companyId: string) {
+    const { data, error } = await supabase
+        .from('companies')
+        .select('casual_leave_total, sick_leave_total')
+        .eq('id', companyId)
+        .single();
+
+    if (error) throw error;
+    return {
+        casualTotal: data.casual_leave_total,
+        sickTotal: data.sick_leave_total,
+    };
 }
 
 /**

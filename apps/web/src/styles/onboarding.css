@@ -220,3 +220,97 @@
     padding: 1rem 2rem;
     font-size: 1rem;
 }
+
+/* ============================================================================
+   Leave Policy Step
+   ============================================================================ */
+
+.leave-policy-info {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: #1e40af;
+    line-height: 1.5;
+}
+
+.leave-policy-info .info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.leave-policy-info strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+.leave-policy-info p {
+    margin: 0;
+    color: #3b82f6;
+    font-size: 0.8rem;
+}
+
+.leave-label-icon {
+    margin-right: 6px;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    margin-top: 4px;
+}
+
+/* Leave Summary Preview Card */
+.leave-summary-preview {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 1rem;
+}
+
+.leave-summary-preview .preview-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+}
+
+.preview-items {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.preview-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.preview-label {
+    font-size: 0.78rem;
+    color: var(--gray-500);
+}
+
+.preview-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.preview-value.cl {
+    color: #2563eb;
+}
+
+.preview-value.sl {
+    color: #0d9488;
+}
