@@ -6,7 +6,7 @@ export type Json =
     | { [key: string]: Json | undefined }
     | Json[]
 
-export type Database = {
+export interface Database {
     public: {
         Tables: {
             attendance: {
@@ -17,6 +17,7 @@ export type Database = {
                     date: string
                     employee_id: string
                     id: string
+                    leave_type: string | null
                     status: Database["public"]["Enums"]["attendance_status"]
                     updated_at: string | null
                 }
@@ -27,6 +28,7 @@ export type Database = {
                     date: string
                     employee_id: string
                     id?: string
+                    leave_type?: string | null
                     status: Database["public"]["Enums"]["attendance_status"]
                     updated_at?: string | null
                 }
@@ -37,6 +39,7 @@ export type Database = {
                     date?: string
                     employee_id?: string
                     id?: string
+                    leave_type?: string | null
                     status?: Database["public"]["Enums"]["attendance_status"]
                     updated_at?: string | null
                 }
@@ -54,115 +57,163 @@ export type Database = {
                 Row: {
                     address: string | null
                     created_at: string | null
-                    email: string
-                    esi_registration: string | null
-                    gst_number: string | null
+                    email: string | null
+                    gstin: string | null
                     id: string
-                    logo_url: string | null
                     name: string
-                    pan_number: string | null
-                    pf_registration: string | null
+                    pan: string | null
                     phone: string | null
                     updated_at: string | null
+                    user_id: string
                 }
                 Insert: {
                     address?: string | null
                     created_at?: string | null
-                    email: string
-                    esi_registration?: string | null
-                    gst_number?: string | null
+                    email?: string | null
+                    gstin?: string | null
                     id?: string
-                    logo_url?: string | null
                     name: string
-                    pan_number?: string | null
-                    pf_registration?: string | null
+                    pan?: string | null
                     phone?: string | null
                     updated_at?: string | null
+                    user_id: string
                 }
                 Update: {
                     address?: string | null
                     created_at?: string | null
-                    email?: string
-                    esi_registration?: string | null
-                    gst_number?: string | null
+                    email?: string | null
+                    gstin?: string | null
                     id?: string
-                    logo_url?: string | null
                     name?: string
-                    pan_number?: string | null
-                    pf_registration?: string | null
+                    pan?: string | null
                     phone?: string | null
                     updated_at?: string | null
+                    user_id?: string
                 }
                 Relationships: []
             }
+            documents: {
+                Row: {
+                    category: string | null
+                    company_id: string
+                    created_at: string | null
+                    employee_id: string | null
+                    file_name: string
+                    file_size: number | null
+                    file_url: string
+                    id: string
+                    mime_type: string | null
+                    updated_at: string | null
+                    uploaded_by: string | null
+                }
+                Insert: {
+                    category?: string | null
+                    company_id: string
+                    created_at?: string | null
+                    employee_id?: string | null
+                    file_name: string
+                    file_size?: number | null
+                    file_url: string
+                    id?: string
+                    mime_type?: string | null
+                    updated_at?: string | null
+                    uploaded_by?: string | null
+                }
+                Update: {
+                    category?: string | null
+                    company_id?: string
+                    created_at?: string | null
+                    employee_id?: string | null
+                    file_name?: string
+                    file_size?: number | null
+                    file_url?: string
+                    id?: string
+                    mime_type?: string | null
+                    updated_at?: string | null
+                    uploaded_by?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "documents_company_id_fkey"
+                        columns: ["company_id"]
+                        isOneToOne: false
+                        referencedRelation: "companies"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "documents_employee_id_fkey"
+                        columns: ["employee_id"]
+                        isOneToOne: false
+                        referencedRelation: "employees"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
             employees: {
                 Row: {
-                    aadhaar_last_4: string | null
+                    aadhaar: string | null
                     bank_account: string | null
+                    bank_ifsc: string | null
                     bank_name: string | null
                     company_id: string
                     created_at: string | null
-                    ctc: number
-                    date_of_birth: string | null
+                    ctc: string
                     department: string | null
                     designation: string | null
                     email: string
-                    employee_id: string | null
-                    gender: string | null
+                    employee_id: string
                     id: string
-                    ifsc_code: string | null
-                    joining_date: string
+                    joining_date: string | null
                     name: string
-                    pan_number: string | null
+                    pan: string | null
                     phone: string | null
                     salary_structure_id: string | null
                     status: string | null
+                    uan: string | null
                     updated_at: string | null
                 }
                 Insert: {
-                    aadhaar_last_4?: string | null
+                    aadhaar?: string | null
                     bank_account?: string | null
+                    bank_ifsc?: string | null
                     bank_name?: string | null
                     company_id: string
                     created_at?: string | null
-                    ctc: number
-                    date_of_birth?: string | null
+                    ctc: string
                     department?: string | null
                     designation?: string | null
                     email: string
-                    employee_id?: string | null
-                    gender?: string | null
+                    employee_id: string
                     id?: string
-                    ifsc_code?: string | null
-                    joining_date: string
+                    joining_date?: string | null
                     name: string
-                    pan_number?: string | null
+                    pan?: string | null
                     phone?: string | null
                     salary_structure_id?: string | null
                     status?: string | null
+                    uan?: string | null
                     updated_at?: string | null
                 }
                 Update: {
-                    aadhaar_last_4?: string | null
+                    aadhaar?: string | null
                     bank_account?: string | null
+                    bank_ifsc?: string | null
                     bank_name?: string | null
                     company_id?: string
                     created_at?: string | null
-                    ctc?: number
-                    date_of_birth?: string | null
+                    ctc?: string
                     department?: string | null
                     designation?: string | null
                     email?: string
-                    employee_id?: string | null
-                    gender?: string | null
+                    employee_id?: string
                     id?: string
-                    ifsc_code?: string | null
-                    joining_date?: string
+                    joining_date?: string | null
                     name?: string
-                    pan_number?: string | null
+                    pan?: string | null
                     phone?: string | null
                     salary_structure_id?: string | null
                     status?: string | null
+                    uan?: string | null
                     updated_at?: string | null
                 }
                 Relationships: [
@@ -174,7 +225,7 @@ export type Database = {
                         referencedColumns: ["id"]
                     },
                     {
-                        foreignKeyName: "fk_employees_salary_structure"
+                        foreignKeyName: "employees_salary_structure_id_fkey"
                         columns: ["salary_structure_id"]
                         isOneToOne: false
                         referencedRelation: "salary_structures"
@@ -182,84 +233,95 @@ export type Database = {
                     },
                 ]
             }
+            leave_balances: {
+                Row: {
+                    casual_total: number
+                    casual_used: number
+                    created_at: string | null
+                    employee_id: string
+                    id: string
+                    sick_total: number
+                    sick_used: number
+                    updated_at: string | null
+                    year: number
+                }
+                Insert: {
+                    casual_total?: number
+                    casual_used?: number
+                    created_at?: string | null
+                    employee_id: string
+                    id?: string
+                    sick_total?: number
+                    sick_used?: number
+                    updated_at?: string | null
+                    year: number
+                }
+                Update: {
+                    casual_total?: number
+                    casual_used?: number
+                    created_at?: string | null
+                    employee_id?: string
+                    id?: string
+                    sick_total?: number
+                    sick_used?: number
+                    updated_at?: string | null
+                    year?: number
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "leave_balances_employee_id_fkey"
+                        columns: ["employee_id"]
+                        isOneToOne: false
+                        referencedRelation: "employees"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
             payroll_items: {
                 Row: {
-                    basic: number
-                    bonus: number | null
+                    basic_salary: number
                     created_at: string | null
-                    days_absent: number | null
-                    days_worked: number | null
                     employee_id: string
-                    esi_employee: number | null
-                    esi_employer: number | null
+                    esi_amount: number | null
                     gross_salary: number
-                    hra: number | null
+                    hra: number
                     id: string
                     lop_days: number | null
                     net_salary: number
-                    other_deductions: number | null
-                    other_earnings: number | null
-                    overtime: number | null
                     payroll_run_id: string
-                    pf_employee: number | null
-                    pf_employer: number | null
-                    professional_tax: number | null
+                    pf_amount: number
+                    professional_tax: number
                     special_allowance: number | null
-                    tds: number | null
-                    total_deductions: number | null
-                    updated_at: string | null
                 }
                 Insert: {
-                    basic: number
-                    bonus?: number | null
+                    basic_salary: number
                     created_at?: string | null
-                    days_absent?: number | null
-                    days_worked?: number | null
                     employee_id: string
-                    esi_employee?: number | null
-                    esi_employer?: number | null
+                    esi_amount?: number | null
                     gross_salary: number
-                    hra?: number | null
+                    hra: number
                     id?: string
                     lop_days?: number | null
                     net_salary: number
-                    other_deductions?: number | null
-                    other_earnings?: number | null
-                    overtime?: number | null
                     payroll_run_id: string
-                    pf_employee?: number | null
-                    pf_employer?: number | null
-                    professional_tax?: number | null
+                    pf_amount: number
+                    professional_tax: number
                     special_allowance?: number | null
-                    tds?: number | null
-                    total_deductions?: number | null
-                    updated_at?: string | null
                 }
                 Update: {
-                    basic?: number
-                    bonus?: number | null
+                    basic_salary?: number
                     created_at?: string | null
-                    days_absent?: number | null
-                    days_worked?: number | null
                     employee_id?: string
-                    esi_employee?: number | null
-                    esi_employer?: number | null
+                    esi_amount?: number | null
                     gross_salary?: number
-                    hra?: number | null
+                    hra?: number
                     id?: string
                     lop_days?: number | null
                     net_salary?: number
-                    other_deductions?: number | null
-                    other_earnings?: number | null
-                    overtime?: number | null
                     payroll_run_id?: string
-                    pf_employee?: number | null
-                    pf_employer?: number | null
-                    professional_tax?: number | null
+                    pf_amount?: number
+                    professional_tax?: number
                     special_allowance?: number | null
-                    tds?: number | null
-                    total_deductions?: number | null
-                    updated_at?: string | null
                 }
                 Relationships: [
                     {
@@ -473,7 +535,7 @@ export type Database = {
             [_ in never]: never
         }
         Enums: {
-            attendance_status: "present" | "absent" | "half_day" | "on_leave" | "holiday" | "weekend"
+            attendance_status: "present" | "absent" | "half_day" | "on_leave" | "holiday" | "weekend" | "lop"
         }
         CompositeTypes: {
             [_ in never]: never
@@ -493,3 +555,4 @@ export type SalaryStructure = Tables<'salary_structures'>
 export type PayrollRun = Tables<'payroll_runs'>
 export type PayrollItem = Tables<'payroll_items'>
 export type Payslip = Tables<'payslips'>
+export type LeaveBalance = Tables<'leave_balances'>

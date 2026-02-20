@@ -1,0 +1,256 @@
+/* ============================================================================
+   Attendance Calendar – Manual Entry Popup
+   ============================================================================ */
+
+/* Popup container */
+.attendance-popup {
+    position: absolute;
+    z-index: 50;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+        0 8px 10px -6px rgba(0, 0, 0, 0.06);
+    padding: 6px;
+    min-width: 160px;
+    animation: attendancePopupIn 0.15s ease-out;
+}
+
+@keyframes attendancePopupIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Popup header */
+.attendance-popup-header {
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 4px;
+}
+
+/* Status option buttons */
+.attendance-popup-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    transition: background-color 0.12s ease, transform 0.1s ease;
+    text-align: left;
+}
+
+.attendance-popup-option:hover {
+    background-color: #f3f4f6;
+    transform: translateX(2px);
+}
+
+.attendance-popup-option:active {
+    transform: scale(0.98);
+}
+
+/* Status-specific hover colors */
+.attendance-popup-option.opt-present:hover {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.attendance-popup-option.opt-absent:hover {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.attendance-popup-option.opt-half-day:hover {
+    background-color: #fef9c3;
+    color: #854d0e;
+}
+
+.attendance-popup-option.opt-remove:hover {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.attendance-popup-option.opt-on-leave:hover {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.attendance-popup-option.opt-lop:hover {
+    background-color: #ffedd5;
+    color: #9a3412;
+}
+
+.attendance-popup-option.opt-sick-leave:hover {
+    background-color: #ccfbf1;
+    color: #115e59;
+}
+
+.attendance-popup-option.opt-half-day-sick:hover {
+    background-color: #ccfbf1;
+    color: #115e59;
+}
+
+/* Status icon dots */
+.attendance-popup-option .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.opt-present .status-dot {
+    background-color: #22c55e;
+}
+
+.opt-absent .status-dot {
+    background-color: #ef4444;
+}
+
+.opt-half-day .status-dot {
+    background-color: #eab308;
+}
+
+.opt-remove .status-dot {
+    background-color: #9ca3af;
+}
+
+.opt-on-leave .status-dot {
+    background-color: #3b82f6;
+}
+
+.opt-lop .status-dot {
+    background-color: #f97316;
+}
+
+.opt-sick-leave .status-dot {
+    background-color: #14b8a6;
+}
+
+.opt-half-day-sick .status-dot {
+    background-color: #14b8a6;
+}
+
+/* Divider */
+.attendance-popup-divider {
+    height: 1px;
+    background: #f3f4f6;
+    margin: 4px 6px;
+}
+
+/* Leave balance bar */
+.leave-balance-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #f0f9ff, #eff6ff);
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e40af;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.leave-balance-bar .balance-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.leave-balance-bar .balance-value {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.leave-balance-bar .balance-divider {
+    width: 1px;
+    height: 20px;
+    background: #93c5fd;
+}
+
+/* Clickable day cell override */
+.attendance-day-cell {
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, transform 0.1s ease;
+    user-select: none;
+}
+
+.attendance-day-cell:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.attendance-day-cell:active {
+    transform: translateY(0);
+}
+
+/* Active / selected day cell */
+.attendance-day-cell.active-cell {
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* Toast notification */
+.attendance-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    background: #1f2937;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    animation: toastSlide 0.3s ease-out;
+}
+
+.attendance-toast.toast-exit {
+    animation: toastFade 0.2s ease-in forwards;
+}
+
+@keyframes toastSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastFade {
+    to {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+/* Backdrop for closing popup when clicking outside */
+.attendance-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+}

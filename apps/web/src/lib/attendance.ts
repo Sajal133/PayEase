@@ -16,7 +16,7 @@ export interface MonthlyAttendanceSummary {
 }
 
 export const ATTENDANCE_STATUSES: AttendanceStatus[] = [
-    'present', 'absent', 'half_day', 'on_leave', 'holiday', 'weekend'
+    'present', 'half_day', 'on_leave', 'holiday', 'weekend', 'lop'
 ];
 
 /**
@@ -72,21 +72,15 @@ export async function calculateMonthlyAttendance(
         const date = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         const record = recordMap.get(date);
 
-        // Default to 'present' if checking mostly, but usually we default to 'absent' or 'weekend' if no record?
-        // For now, assume if no record, it needs filling or is treated as absent/holiday depending on policy.
-        // Let's assume strict recording: No record = Absent (or we need a default).
-        // BUT, system might auto-fill weekends.
-
         if (!record) {
             // Check if weekend
             const d = new Date(year, month - 1, day);
             const dayOfWeek = d.getDay();
-            if (dayOfWeek === 0 || dayOfWeek === 6) { // Sun=0, Sat=6
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
                 summary.weekends++;
-            } else {
-                summary.absentDays++; // No record = Absent
-                summary.lopDays++;
             }
+            // Days with no record are not counted as anything
+            // LOP only applies when explicitly marked
             continue;
         }
 
@@ -96,18 +90,19 @@ export async function calculateMonthlyAttendance(
                 break;
             case 'absent':
                 summary.absentDays++;
-                summary.lopDays++;
                 break;
             case 'half_day':
                 summary.halfDays++;
-                summary.lopDays += 0.5;
                 summary.presentDays += 0.5;
+                // Half day is paid leave — NOT LOP
                 break;
             case 'on_leave':
                 summary.leaveDays++;
-                // Check if paid leave or LOP? 
-                // Creating leave management later. For now assume paid leave unless marked absent.
-                // If status is 'leave', it's usually authorized paid leave.
+                // Paid leave — does NOT count as LOP
+                break;
+            case 'lop':
+                summary.lopDays++;
+                // Loss of Pay — only this explicitly deducts from salary
                 break;
             case 'holiday':
                 summary.holidays++;
@@ -150,4 +145,17 @@ export async function bulkUpsertAttendance(
 
     if (error) throw error;
     return data;
+}
+
+/**
+ * Delete an attendance record for a specific employee and date
+ */
+export async function deleteAttendance(employeeId: string, date: string) {
+    const { error } = await supabase
+        .from('attendance')
+        .delete()
+        .eq('employee_id', employeeId)
+        .eq('date', date);
+
+    if (error) throw error;
 }
